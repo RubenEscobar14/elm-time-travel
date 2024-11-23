@@ -14,6 +14,10 @@ initialStateWithTimeTravel rawGame =
 viewWithTimeTravel rawGame computer model =
   let
     histLength = List.length model.history
+    -- get % of list completed (histLength / maxVisibleHistory * 100) and multiply it by 2.56
+    colorLength = (toFloat histLength) / (toFloat maxVisibleHistory) * 256
+    myRed = 256.0 - colorLength
+    myBlue = colorLength
     -- Creates a rectangle at the top of the screen, stretching from the
     -- left edge up to a specific position within the history timeline
     historyBar color opacity index =
@@ -32,7 +36,7 @@ viewWithTimeTravel rawGame computer model =
   in
     (rawGame.view computer model.rawModel) ++
       [ historyBar black 0.3 maxVisibleHistory
-      , historyBar green 0.6 histLength
+      , historyBar (rgb myRed 5.0 myBlue) 0.6 histLength
       , words white helpMessage
           |> move 0 (computer.screen.top - controlBarHeight / 2)
       ]
