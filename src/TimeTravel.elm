@@ -4,11 +4,23 @@ import Playground exposing (..)
 import Set
 import Dict exposing (update)
 
+controlBarHeight = 64
+
 initialStateWithTimeTravel rawGame =
     {rawModel = rawGame.initialState, paused = False}
 
 viewWithTimeTravel rawGame computer model =
-  rawGame.view computer model.rawModel
+  let
+    helpMessage =
+      if model.paused then
+        "Press R to resume"
+      else
+        "Press T to time travel"
+  in
+    (rawGame.view computer model.rawModel) ++
+      [ words white helpMessage
+          |> move 0 (computer.screen.top - controlBarHeight / 2)
+      ]
 
 updateWithTimeTravel rawGame computer model =
   if keyPressed "T" computer then
