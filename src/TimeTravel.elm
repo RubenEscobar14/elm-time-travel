@@ -9,7 +9,7 @@ controlBarHeight = 64
 maxVisibleHistory = 2000
 
 initialStateWithTimeTravel rawGame =
-    {rawModel = rawGame.initialState, paused = False, history = []}
+    {rawModel = rawGame.initialState, paused = False, history = [], historyPlaybackPosition = 0}
 
 viewWithTimeTravel rawGame computer model =
   let
@@ -36,7 +36,9 @@ viewWithTimeTravel rawGame computer model =
   in
     (rawGame.view computer model.rawModel) ++
       [ historyBar black 0.3 maxVisibleHistory
-      , historyBar (rgb myRed 5.0 myBlue) 0.6 histLength
+      -- , historyBar (rgb myRed 5.0 myBlue) 0.6 histLength
+      , historyBar (rgb 0 5.0 0) 0.6 histLength
+      , historyBar (rgb myRed 0 myBlue) 0.6 histLength
       , words white helpMessage
           |> move 0 (computer.screen.top - controlBarHeight / 2)
       ]
@@ -47,12 +49,14 @@ updateWithTimeTravel rawGame computer model =
   else if keyPressed "R" computer then
     { model | paused = False, rawModel = rawGame.updateState computer model.rawModel
     , history = model.history ++ [computer]
+    , historyPlaybackPosition = List.length model.history
     }
   else if model.paused then
     model
   else
     { model | rawModel = rawGame.updateState computer model.rawModel
     , history = model.history ++ [computer]
+    , historyPlaybackPosition = List.length model.history
     }
 
 addTimeTravel rawGame =
