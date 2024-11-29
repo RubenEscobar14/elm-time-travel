@@ -37,26 +37,31 @@ viewWithTimeTravel rawGame computer model =
     (rawGame.view computer model.rawModel) ++
       [ historyBar black 0.3 maxVisibleHistory
       -- , historyBar (rgb myRed 5.0 myBlue) 0.6 histLength
-      , historyBar (rgb 0 5.0 0) 0.6 histLength
-      , historyBar (rgb myRed 0 myBlue) 0.6 histLength
+      , historyBar green 0.6 histLength
+      , historyBar (rgb myRed 0 myBlue) 0.6 model.historyPlaybackPosition
       , words white helpMessage
           |> move 0 (computer.screen.top - controlBarHeight / 2)
       ]
 
 updateWithTimeTravel rawGame computer model =
-  if keyPressed "T" computer then
+  if model.paused && computer.mouse.down then
+    let
+        newPlaybackPosition = min (mousePosToHistoryIndex computer) (List.length model.history)
+    in
+      { model | historyPlaybackPosition = newPlaybackPosition }
+  else if keyPressed "T" computer then
     { model | paused = True}
   else if keyPressed "R" computer then
     { model | paused = False, rawModel = rawGame.updateState computer model.rawModel
     , history = model.history ++ [computer]
-    , historyPlaybackPosition = List.length model.history
+    , historyPlaybackPosition = List.length model.history + 1
     }
   else if model.paused then
     model
   else
     { model | rawModel = rawGame.updateState computer model.rawModel
     , history = model.history ++ [computer]
-    , historyPlaybackPosition = List.length model.history
+    , historyPlaybackPosition = List.length model.history + 1
     }
 
 addTimeTravel rawGame =
@@ -75,3 +80,9 @@ keyPressed keyName computer =
 -- Converts an index in the history list to an x coordinate on the screen
 historyIndexToX computer index =
   (toFloat index) / maxVisibleHistory * computer.screen.width
+
+-- Converts the mouse's current position to an index within the history list
+mousePosToHistoryIndex computer =
+  (computer.mouse.x - computer.screen.left)
+    / computer.screen.width * maxVisibleHistory
+  |> round
