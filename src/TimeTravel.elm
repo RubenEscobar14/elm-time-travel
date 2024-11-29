@@ -32,7 +32,7 @@ viewWithTimeTravel rawGame computer model =
       if model.paused then
         "Press R to resume, or drag the funny bar around to time travel"
       else
-        "Press T to time travel"
+        "Press T to time travel, or C to recreate the big bang"
   in
     (rawGame.view computer model.rawModel) ++
       [ historyBar black 0.3 maxVisibleHistory
@@ -62,6 +62,11 @@ updateWithTimeTravel rawGame computer model =
     }
   else if model.paused then
     model
+  else if keyPressed "C" computer then
+    { model | rawModel = rawGame.initialState
+    , history = []
+    , historyPlaybackPosition = 0
+    }
   else
     { model | rawModel = rawGame.updateState computer model.rawModel
     , history = model.history ++ [computer]
